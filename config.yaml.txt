@@ -1,0 +1,60 @@
+%YAML 1.1
+---
+name: Local and External Assistant
+version: 1.0.0
+schema: v1
+model_defaults: &model_defaults
+  provider: ollama
+  model: qwen2.5-coder:7b
+  capabilities:
+    - tool_use
+  roles:
+    - chat
+    - edit
+    - apply
+    - autocomplete
+    - embed
+  defaultCompletionOptions:
+    temperature: 0.2
+models:
+  - name: qwen2.5-coder:7b (Local)
+    <<: *model_defaults
+  - name: qwen2.5-coder:7b (Remote)
+    <<: *model_defaults
+    apiBase: http://IP_ADDRESS:11434
+prompts:
+  - name: test
+    description: Write unit tests for highlighted code
+    prompt: |
+      Write a comprehensive set of unit tests for the selected code. Include
+      setup, correctness tests with important edge cases, and teardown. Output
+      tests in chat only; don't edit any file.
+  - name: explain
+    description: Explain selected code clearly and briefly
+    prompt: |
+      Explain the currently highlighted code in concise, plain language.
+      If highlighted code is unavailable in the request context, fall back to the most relevant code from the current file context instead of stopping.
+      Start by stating whether you are explaining highlighted code or current-file fallback context.
+      Include:
+      - what it does
+      - the key inputs and outputs
+      - any important edge cases
+      - anything surprising or easy to miss
+      Do not edit any files.
+  - name: refactor
+    description: Suggest a safe refactor for selected code
+    prompt: |
+      Refactor the selected code to improve clarity and maintainability.
+      Preserve behavior unless you explicitly call out a bug.
+      Keep the change minimal and explain the main improvement.
+      If tests are relevant, mention what should be verified.
+context:
+  - provider: diff
+  - provider: currentFile
+  - provider: open
+  - provider: terminal
+  - provider: problems
+  - provider: code
+  - provider: docs
+experimental:
+  autoExecuteTools: true
