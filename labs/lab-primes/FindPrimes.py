@@ -1,0 +1,1 @@
+##Find primes given a number n
